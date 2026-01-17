@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>НПУ | Київ - Офіційний портал</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html { width: 100%; height: 100%; font-family: 'Open Sans', sans-serif; background-color: #080808; color: white; overflow-x: hidden; }
+
+        /* СНІГ */
+        #snow-canvas { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 1002; }
+
+        /* ФОН ТА ЕФЕКТИ */
+        .background-scene { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-image: url('https://i.postimg.cc/V6dqQJmL/Gemini-Generated-Image-1jznmn1jznmn1jzn.png'); background-size: cover; background-position: center; z-index: -2; filter: brightness(0.18) blur(4px); }
+        .gradient-mask { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(90deg, rgba(8, 8, 8, 1) 0%, rgba(8, 8, 8, 0.85) 40%, rgba(8, 8, 8, 0.4) 100%); z-index: -1; }
+
+        /* HEADER */
+        header { display: flex; justify-content: space-between; align-items: center; padding: 10px 40px; position: fixed; width: 100%; top: 0; z-index: 100; background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .branding { display: flex; align-items: center; gap: 15px; flex: 1; }
+        
+        /* АНІМАЦІЯ ЛОГО 3D */
+        .npu-emblem { height: 65px; filter: drop-shadow(0 0 15px rgba(0, 102, 255, 0.5)); transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform: perspective(1000px) rotateY(20deg); cursor: pointer; }
+        .npu-emblem:hover { transform: perspective(1000px) rotateY(0deg) scale(1.1); filter: drop-shadow(0 0 25px rgba(0, 102, 255, 0.8)); }
+        
+        /* ЦЕНТРАЛЬНА ЯЛИНКА */
+        .holiday-tree { position: absolute; left: 50%; transform: translateX(-50%); top: 5px; font-size: 40px; animation: tree-glow 2.5s ease-in-out infinite; cursor: default; user-select: none; }
+        @keyframes tree-glow { 0%, 100% { filter: drop-shadow(0 0 5px #2ecc71); transform: translateX(-50%) scale(1); } 50% { filter: drop-shadow(0 0 20px #f1c40f); transform: translateX(-50%) scale(1.15); } }
+
+        .nav-right { display: flex; align-items: center; gap: 12px; flex: 1; justify-content: flex-end; }
+        .unit-btn { color: #ffd700; text-decoration: none; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 20px; border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 5px; background: rgba(255, 215, 0, 0.05); transition: 0.4s; cursor: pointer; }
+        .unit-btn:hover { background: rgba(255, 215, 0, 0.2); transform: translateY(-3px); box-shadow: 0 0 20px rgba(255,215,0,0.25); }
+
+        /* MAIN SECTION */
+        .main-section { display: flex; justify-content: space-between; align-items: center; min-height: 100vh; padding: 80px 8% 0; }
+        .info-block { flex: 1.2; max-width: 650px; z-index: 5; animation: slideIn 1s ease-out; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-50px); } to { opacity: 1; transform: translateX(0); } }
+        
+        .info-block h1 { font-size: 46px; font-weight: 300; margin-bottom: 25px; line-height: 1.1; }
+        .cta-btn { display: inline-block; padding: 18px 45px; border: 1px solid rgba(255,255,255,0.2); color: white; text-decoration: none; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); transition: 0.5s; cursor: pointer; border-radius: 4px; }
+        .cta-btn:hover { background: white; color: black; box-shadow: 0 0 35px rgba(255,255,255,0.4); transform: translateY(-3px); }
+
+        /* АНІМАЦІЯ ДИХАННЯ ПОЛІЦЕЙСЬКОГО */
+        .police-character { height: 90vh; filter: drop-shadow(-30px 10px 60px rgba(0,0,0,0.9)); animation: breathe 7s ease-in-out infinite; }
+        @keyframes breathe { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-15px) scale(1.01); } }
+
+        /* FULLPAGE PAGES */
+        .full-page { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: radial-gradient(circle at center, #0f0f0f 0%, #050505 100%); z-index: 1001; opacity: 0; visibility: hidden; transition: 0.6s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; align-items: center; overflow-y: auto; padding: 60px 40px; }
+        .full-page.active { opacity: 1; visibility: visible; }
+        
+        .page-logo { height: 140px; margin-bottom: 30px; filter: drop-shadow(0 0 25px rgba(255, 215, 0, 0.3)); animation: logoFloat 4s ease-in-out infinite; }
+        @keyframes logoFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+        .article-box { max-width: 1000px; width: 100%; background: rgba(255,255,255,0.02); border-left: 4px solid #ffd700; padding: 50px; border-radius: 0 30px 30px 0; box-shadow: 20px 20px 60px rgba(0,0,0,0.5); margin-bottom: 50px; }
+        .article-box h2 { font-size: 40px; margin-bottom: 30px; font-weight: 300; color: #fff; text-transform: uppercase; letter-spacing: 2px; }
+        .article-box h3 { color: #ffd700; font-size: 20px; margin: 30px 0 15px; font-weight: 600; text-transform: uppercase; }
+        .article-box p { font-size: 16px; line-height: 1.8; color: rgba(255,255,255,0.85); margin-bottom: 20px; text-align: justify; }
+
+        /* MODALS */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.97); backdrop-filter: blur(25px); display: none; justify-content: center; align-items: center; z-index: 2000; }
+        .modal-content { background: #111; border: 1px solid rgba(255,255,255,0.1); padding: 45px; border-radius: 35px; text-align: center; max-width: 550px; width: 95%; transform: scale(0.8); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .modal-overlay[style*="display: flex"] .modal-content { transform: scale(1); }
+        
+        .stat-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); padding: 22px; border-radius: 15px; cursor: pointer; transition: 0.3s; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .stat-card:hover { border-color: #ffd700; background: rgba(255,215,0,0.07); transform: scale(1.02); }
+
+        .person-item { display: flex; justify-content: space-between; align-items: center; padding: 14px; background: rgba(255,215,0,0.03); border: 1px solid rgba(255,255,255,0.05); margin-bottom: 10px; border-radius: 10px; }
+        .del-btn { color: #ff4444; cursor: pointer; font-size: 18px; padding: 0 10px; transition: 0.3s; }
+        .close-txt { margin-top: 40px; color: rgba(255,255,255,0.4); text-transform: uppercase; font-size: 10px; letter-spacing: 3px; cursor: pointer; transition: 0.3s; }
+        .close-txt:hover { color: #fff; letter-spacing: 5px; }
+        .edit-pen { cursor: pointer; color: #ffd700; margin-left: 12px; opacity: 0.5; }
+    </style>
+</head>
+<body onclick="playMusic()">
+
+    <audio id="bg-music" loop>
+        <source src="https://raw.githubusercontent.com/More58-ai/NPU/main/Wham!%20-%20Last%20Christmas%20(Official%20Video).mp3" type="audio/mpeg">
+    </audio>
+
+    <canvas id="snow-canvas"></canvas>
+    <div class="background-scene"></div>
+    <div class="gradient-mask"></div>
+
+    <header>
+        <div class="branding">
+            <img src="https://i.postimg.cc/KcBqpWz7/npu-removebg-preview.png" class="npu-emblem">
+            <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Головне управління <br><b>НПУ м. Києва</b></div>
+        </div>
+        <div class="holiday-tree">🎄</div>
+        <div class="nav-right">
+            <div class="unit-btn" onclick="togglePage('pp-page', true)">ПП</div>
+            <div class="unit-btn" onclick="togglePage('gsu-page', true)">ГСУ</div>
+            <div class="unit-btn" onclick="togglePage('kord-page', true)">КОРД</div>
+        </div>
+    </header>
+
+    <section class="main-section">
+        <div class="info-block">
+            <span style="color:#ffd700; letter-spacing:4px; font-size:11px; text-transform:uppercase; display:block; margin-bottom:15px;">Служити та захищати 2026</span>
+            <h1>Національна поліція України</h1>
+            <p>Вітаємо на офіційному інформаційному порталі ГУНП у місті Києві. Наша місія — забезпечення публічної безпеки, протидія злочинності та надання поліцейських послуг на засадах партнерства з громадою столиці.</p>
+            <div class="cta-btn" onclick="openModal('main-stats')">Штат працівників</div>
+        </div>
+        <img src="https://i.postimg.cc/SQnBVVFp/snapedit-1768682778382-removebg-preview.png" class="police-character">
+    </section>
+
+    <div class="full-page" id="pp-page">
+        <img src="https://i.postimg.cc/KcBqpWz7/npu-removebg-preview.png" class="page-logo">
+        <div class="article-box">
+            <h2>Управління патрульної поліції</h2>
+            <p>Патрульна поліція Києва — це мобільний та високоефективний підрозділ, що першим прибуває на допомогу громадянам. Патрульні поліцейські щодня виконують сотні завдань: від регулювання дорожнього руху до припинення тяжких кримінальних правопорушень "по гарячих слідах".</p>
+            
+            <h3>Основні напрямки діяльності:</h3>
+            <p>Підрозділ відповідає за цілодобове патрулювання вулиць столиці, реагування на виклики за лінією 102, забезпечення безпеки дорожнього руху та супровід офіційних делегацій. Велика увага приділяється превенції — недопущенню вчинення правопорушень шляхом постійної присутності на маршрутах патрулювання.</p>
+            
+            <h3>Технічне оснащення:</h3>
+            <p>Екіпажі оснащені сучасними службовими автомобілями з інтегрованими системами відеофіксації, планшетами для доступу до відомчих баз даних у режимі реального часу та приладами контролю швидкості. Кожен офіцер має нагрудну відеокамеру (бодікам) для забезпечення прозорості та законності дій.</p>
+            
+            <div class="unit-btn" style="display:inline-block; margin-top:20px;" onclick="openLidModal('pp')">Керівництво ПП</div>
+            <div class="close-txt" onclick="togglePage('pp-page', false)">[ ПОВЕРНУТИСЯ ДО ГОЛОВНОЇ ]</div>
+        </div>
+    </div>
+
+    <div class="full-page" id="gsu-page">
+        <img src="https://i.postimg.cc/KcBqpWz7/npu-removebg-preview.png" class="page-logo">
+        <div class="article-box">
+            <h2>Головне слідче управління</h2>
+            <p>Головне слідче управління (ГСУ) є ключовою ланкою у системі досудового розслідування. Саме тут зосереджені найдосвідченіші слідчі та аналітики, які працюють над розкриттям складних багатоепізодних кримінальних проваджень, що мають резонансний статус.</p>
+            
+            <h3>Аналітична та процесуальна робота:</h3>
+            <p>ГСУ здійснює координацію всіх слідчих підрозділів райуправлінь міста. До обов'язків входить збір та перевірка доказів, призначення експертиз, проведення обшуків та допитів. Слідчі активно взаємодіють з прокуратурою та судовими органами для доведення кожної справи до справедливого вироку.</p>
+            
+            <h3>Інноваційні методи розслідування:</h3>
+            <p>Ми впроваджуємо сучасні криміналістичні технології: молекулярно-генетичні дослідження, цифрову форензику (аналіз даних з гаджетів) та використання спеціалізованого ПЗ для відстеження фінансових махінацій. Кожна справа — це результат титанічної інтелектуальної праці команди фахівців.</p>
+
+            <div class="unit-btn" style="display:inline-block; margin-top:20px;" onclick="openLidModal('gsu')">Керівництво ГСУ</div>
+            <div class="close-txt" onclick="togglePage('gsu-page', false)">[ ПОВЕРНУТИСЯ ДО ГОЛОВНОЇ ]</div>
+        </div>
+    </div>
+
+    <div class="full-page" id="kord-page">
+        <img src="https://i.postimg.cc/vZmnJ1QV/kord-removebg-preview.png" class="page-logo">
+        <div class="article-box">
+            <h2>Спецпідрозділ КОРД</h2>
+            <p>Корпус оперативно-раптової дії (КОРД) — це елітний підрозділ поліції особливого призначення. Бійці КОРДу залучаються лише у найскладніших випадках, де існує високий ризик життю офіцерів або цивільних осіб.</p>
+            
+            <h3>Завдання особливої складності:</h3>
+            <p>Основними функціями підрозділу є затримання озброєних злочинців, звільнення заручників, штурмові операції на транспорті та у приміщеннях, а також силова підтримка оперативних служб під час затримання лідерів організованих злочинних угруповань.</p>
+            
+            <h3>Відбір та підготовка:</h3>
+            <p>Кандидати проходять надскладний психологічний та фізичний відбір (так званий "тиждень виживання"). Підготовка включає вогневу тактику, висотну підготовку, тактичну медицину за протоколами TCCC та навички рукопашного бою. КОРД — це сталевий щит столиці, готовий до миттєвої дії.</p>
+
+            <div class="unit-btn" style="display:inline-block; margin-top:20px;" onclick="openLidModal('kord')">Командування КОРД</div>
+            <div class="close-txt" onclick="togglePage('kord-page', false)">[ ПОВЕРНУТИСЯ ДО ГОЛОВНОЇ ]</div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="main-stats">
+        <div class="modal-content">
+            <div style="background: rgba(255,215,0,0.05); border: 1px solid #ffd700; padding: 25px; border-radius: 20px; margin-bottom: 25px;">
+                <p style="font-size:10px; color:#ffd700;">ГЕНЕРАЛ УПРАВЛІННЯ</p>
+                <h2 style="font-size:30px;" id="val-leader">...</h2>
+                <span class="edit-pen" onclick="editStr('stats/leader_name', 'Генерала')">✎</span>
+            </div>
+            <div class="stat-card" onclick="openList('colonels', 'ПОЛКОВНИКИ')"><span>ПОЛКОВНИКИ</span><h3 id="count-colonels">0</h3></div>
+            <div class="stat-card" onclick="openList('lt_colonels', 'ПІДПОЛКОВНИКИ')"><span>ПІДПОЛКОВНИКИ</span><h3 id="count-lt_colonels">0</h3></div>
+            <div class="stat-card" onclick="openList('majors', 'МАЙОРИ')"><span>МАЙОРИ</span><h3 id="count-majors">0</h3></div>
+            <div class="stat-card" style="margin-top:20px; border-style: dashed; cursor: default; opacity:0.8;">
+                <span>ЗАГАЛЬНИЙ ШТАТ</span><h3 id="val-total">0</h3>
+                <span class="edit-pen" onclick="editNum('stats/total_count', 'Усього')">✎</span>
+            </div>
+            <div class="close-txt" onclick="closeModal('main-stats')">[ ЗАКРИТИ ]</div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="list-modal">
+        <div class="modal-content">
+            <h3 id="list-title" style="color:#ffd700; margin-bottom:25px;">СПИСОК</h3>
+            <div id="list-content" style="max-height: 280px; overflow-y: auto; text-align: left; margin-bottom:25px;"></div>
+            <div class="unit-btn" style="width:100%; text-align:center;" onclick="addPerson()">+ ДОДАТИ СПІВРОБІТНИКА</div>
+            <div class="close-txt" onclick="closeModal('list-modal')">[ НАЗАД ]</div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="lid-modal">
+        <div class="modal-content">
+            <h3 id="lid-title" style="color:#ffd700; margin-bottom:30px;">КЕРІВНИЦТВО</h3>
+            <div style="text-align:left; background:rgba(255,215,0,0.03); padding:20px; border-radius:15px; margin-bottom:15px; border: 1px solid rgba(255,215,0,0.1);">
+                <p style="font-size:10px; color:#ffd700;">НАЧАЛЬНИК ПІДРОЗДІЛУ</p>
+                <p style="font-size:20px;"><span id="lid-boss">...</span> <span class="edit-pen" id="edit-boss">✎</span></p>
+            </div>
+            <div style="text-align:left; background:rgba(255,255,255,0.03); padding:20px; border-radius:15px; border: 1px solid rgba(255,255,255,0.05);">
+                <p style="font-size:10px; opacity:0.5;">ЗАСТУПНИК НАЧАЛЬНИКА</p>
+                <p style="font-size:20px;"><span id="lid-dep">...</span> <span class="edit-pen" id="edit-dep">✎</span></p>
+            </div>
+            <div class="close-txt" onclick="closeModal('lid-modal')">[ НАЗАД ]</div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue, set, push, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCtuTFy0xiGfHAoorpQWW0NBNBVZd8n63A",
+            authDomain: "npuofukraine.firebaseapp.com",
+            projectId: "npuofukraine",
+            databaseURL: "https://npuofukraine-default-rtdb.firebaseio.com",
+            storageBucket: "npuofukraine.firebasestorage.app"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        let currentType = ''; 
+
+        // АУДІО
+        let isMusicPlaying = false;
+        window.playMusic = () => {
+            const audio = document.getElementById('bg-music');
+            if(!isMusicPlaying) {
+                audio.volume = 0.25;
+                audio.play();
+                isMusicPlaying = true;
+            }
+        };
+
+        // СНІГ
+        const canvas = document.getElementById('snow-canvas');
+        const ctx = canvas.getContext('2d');
+        let flakes = [];
+        function initSnow() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            flakes = [];
+            for(let i=0; i<180; i++) flakes.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*3+1, d: Math.random()*1, s: Math.random()*1.1+0.4});
+        }
+        function drawSnow() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "white";
+            ctx.beginPath();
+            flakes.forEach(f => {
+                ctx.moveTo(f.x, f.y);
+                ctx.arc(f.x, f.y, f.r, 0, Math.PI*2, true);
+                f.y += f.s;
+                f.x += Math.sin(f.y / 35) * 1;
+                if(f.y > canvas.height) f.y = -10;
+            });
+            ctx.fill();
+            requestAnimationFrame(drawSnow);
+        }
+        initSnow(); drawSnow();
+
+        // UI ЛОГІКА
+        window.togglePage = (id, s) => document.getElementById(id).classList.toggle('active', s);
+        window.openModal = (id) => document.getElementById(id).style.display = 'flex';
+        window.closeModal = (id) => document.getElementById(id).style.display = 'none';
+
+        // SYNC
+        onValue(ref(db, 'stats/leader_name'), s => document.getElementById('val-leader').innerText = s.val() || "...");
+        onValue(ref(db, 'stats/total_count'), s => document.getElementById('val-total').innerText = s.val() || 0);
+
+        const syncCount = (p, id) => onValue(ref(db, `lists/${p}`), s => document.getElementById(id).innerText = s.val() ? Object.keys(s.val()).length : 0);
+        syncCount('colonels', 'count-colonels');
+        syncCount('lt_colonels', 'count-lt_colonels');
+        syncCount('majors', 'count-majors');
+
+        window.openList = (type, label) => {
+            currentType = type;
+            document.getElementById('list-title').innerText = label;
+            onValue(ref(db, `lists/${type}`), snap => {
+                let h = ''; const d = snap.val();
+                if(d) Object.keys(d).forEach(k => { h += `<div class="person-item"><span>${d[k]}</span><span class="del-btn" onclick="deletePerson('${k}')">✕</span></div>`; });
+                else h = '<p style="opacity:0.3; padding:20px;">Список порожній</p>';
+                document.getElementById('list-content').innerHTML = h;
+            });
+            openModal('list-modal');
+        };
+
+        window.addPerson = () => { const n = prompt("ПІБ:"); if(n) push(ref(db, `lists/${currentType}`), n); };
+        window.deletePerson = (k) => { if(confirm("Видалити?")) remove(ref(db, `lists/${currentType}/${k}`)); };
+
+        window.openLidModal = (u) => {
+            document.getElementById('lid-title').innerText = "КЕРІВНИЦТВО " + u.toUpperCase();
+            onValue(ref(db, `${u}/boss`), s => document.getElementById('lid-boss').innerText = s.val() || "...");
+            onValue(ref(db, `${u}/deputy`), s => document.getElementById('lid-dep').innerText = s.val() || "...");
+            document.getElementById('edit-boss').onclick = () => editStr(`${u}/boss`, 'Керівника');
+            document.getElementById('edit-dep').onclick = () => editStr(`${u}/deputy`, 'Заступника');
+            openModal('lid-modal');
+        };
+
+        window.editStr = (p, l) => { const v = prompt(`Змінити ${l}:`); if(v) set(ref(db, p), v); };
+        window.editNum = (p, l) => { const v = prompt(`Змінити число ${l}:`); if(v) set(ref(db, p), parseInt(v)); };
+    </script>
+</body>
+</html>
